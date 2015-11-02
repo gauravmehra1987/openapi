@@ -6,7 +6,7 @@
  * and open the template in the editor.
  */
 
-class ModelHansoftzFeedOpencartBridge{
+class ModelFeedHansoftzFeedOpencartBridge extends Model{
     
     public function getCategoryPath($category_id, $language_id = 0) {
                 
@@ -27,7 +27,21 @@ class ModelHansoftzFeedOpencartBridge{
         }
     }
     
-    public function saveCategory($category_chain,$languages) {
+    public function getCategoryPaths() {
+        $language_id = 1;
+        $sql = "SELECT cp.category_id AS category_id, GROUP_CONCAT(cd1.name ORDER BY cp.level SEPARATOR ' > ') AS name FROM " . DB_PREFIX . "category_path cp LEFT JOIN " . DB_PREFIX . "category c ON (cp.path_id = c.category_id) LEFT JOIN " . DB_PREFIX . "category_description cd1 ON (c.category_id = cd1.category_id) LEFT JOIN " . DB_PREFIX . "category_description cd2 ON (cp.category_id = cd2.category_id) WHERE cd1.language_id = '" . (int) $language_id . "' AND cd2.language_id = '" . (int) $language_id . "'";
+        $sql .= " GROUP BY cp.category_id ORDER BY name";
+        $query = $this->db->query($sql);
+        $category_path = array();
+        if ($query->num_rows){
+           foreach($query->rows as $cat){
+               $category_path[html_entity_decode($cat['name'])] = $cat['category_id'];
+           }
+        }
+        return $category_path;
+    }
+    
+    public function saveCategory($category_chain) {
 
         if (empty($category_chain)) {
             return false;
@@ -64,10 +78,10 @@ class ModelHansoftzFeedOpencartBridge{
                 $is_new = true;
 
                 if($cv){
-                    foreach($languages as $language){
-                        $queries[] = $sql = 'INSERT INTO ' . DB_PREFIX . 'category_description SET category_id="' . $category_id . '", language_id = ' . (int) $language['language_id'] . ', name="' . $this->db->escape($cv) . '"';
-                        $this->db->query($sql);
-                    }
+                    
+                    $queries[] = $sql = 'INSERT INTO ' . DB_PREFIX . 'category_description SET category_id="' . $category_id . '", language_id = 1, name="' . $this->db->escape($cv) . '"';
+                    $this->db->query($sql);
+                    
                     $queries[] = $sql = "INSERT INTO " . DB_PREFIX . "category_to_store SET category_id = '" . (int) $category_id . "', store_id = '" . 0 . "'";
                     $this->db->query($sql);
                 }else{
@@ -84,6 +98,26 @@ class ModelHansoftzFeedOpencartBridge{
         return array('id'=>$category_id,'path'=>$category_chain);
     }
     
+    public function strip($str, $chars) {
+        $str = trim($str);
+        if (empty($chars)) {
+            return $str;
+        }
+        if (!is_array($chars)) {
+            $chars = array($chars);
+        }
+        $pat = array();
+        $rep = array();
+        foreach ($chars as $char) {
+            $pat[] = "/(" . preg_quote($char, '/') . ")*$/";
+            $rep[] = '';
+            $pat[] = "/^(" . preg_quote($char, '/') . ")*/";
+            $rep[] = '';
+        }
+        $res = preg_replace($pat, $rep, $str);
+        return $res;
+    }
+    
     public function saveManufacurer($name) {
         $sel = $this->db->query("SELECT manufacturer_id FROM " . DB_PREFIX . "manufacturer AS m WHERE name='" . $this->db->escape($name) . "'");
         if (empty($sel->row['manufacturer_id'])) {
@@ -96,8 +130,14 @@ class ModelHansoftzFeedOpencartBridge{
         return $manufacturer_id;
     }
     
-    public function saveOption($option, $product_id){
-       
+    public function saveOption($option_name,$option_value, $product_id){
+        
+        $option = new stdClass();
+        $option->name = $option_name;
+        $option->type = "select";
+        $option->value = $option_value;
+        
+      
         if(is_array($option))
             $option = (object)$option;
         
@@ -117,7 +157,7 @@ class ModelHansoftzFeedOpencartBridge{
         // validate parameters
         //
 		if (!in_array($option->type, $option_types)) {
-                    $this->writeLog("Invalid option type - $option->type");
+                    
                     return false;
                 }
 
@@ -199,14 +239,14 @@ class ModelHansoftzFeedOpencartBridge{
                 'product_id' => $product_id,
                 'option_id' => $option_id,
                 'option_value_id' => $option_value_id,
-                'quantity' => $option->quantity,
-                'subtract' => $option->subtract,
-                'price' => abs($option->price),
-                'price_prefix' => ($option->price < 0 ? '-' : '+'),
-                'points' => abs($option->point),
-                'points_prefix' => ($option->point < 0 ? '-' : '+'),
-                'weight' => abs($option->weight),
-                'weight_prefix' => ($option->weight < 0 ? '-' : '+'),
+                'quantity' => 999,
+                'subtract' => 0,
+                'price' => 0,
+                'price_prefix' => '',
+                'points' => '',
+                'points_prefix' => '',
+                'weight' => '',
+                'weight_prefix' => '',
             );
 
             $sql = "insert into " . DB_PREFIX . "product_option_value set";
@@ -247,17 +287,7 @@ class ModelHansoftzFeedOpencartBridge{
             }
         }
 
-        if (isset($data['product_attribute'])) {
-            foreach ($data['product_attribute'] as $product_attribute) {
-                if ($product_attribute['attribute_id']) {
-                    $this->db->query("DELETE FROM " . DB_PREFIX . "product_attribute WHERE product_id = '" . (int) $product_id . "' AND attribute_id = '" . (int) $product_attribute['attribute_id'] . "'");
-                    foreach ($product_attribute['product_attribute_description'] as $language_id => $product_attribute_description) {
-                        if (!empty($product_attribute_description['text']))
-                            $this->db->query("INSERT INTO " . DB_PREFIX . "product_attribute SET product_id = '" . (int) $product_id . "', attribute_id = '" . (int) $product_attribute['attribute_id'] . "', language_id = '" . (int) $language_id . "', text = '" . $this->db->escape($product_attribute_description['text']) . "'");
-                    }
-                }
-            }
-        }
+        
 
         if(isset($data['product_option'])){
             foreach($data['product_option'] as $option){

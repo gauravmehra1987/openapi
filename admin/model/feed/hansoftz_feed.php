@@ -9,6 +9,7 @@ class ModelFeedHansoftzFeed extends Model {
         private $product_json;
         private $category_uri;
         private $collection;
+        private $categories;
         
         
         public function install() {
@@ -84,6 +85,9 @@ class ModelFeedHansoftzFeed extends Model {
 
         
         public function run(){
+            $this->load->model('feed/hansoftz_feed_opencart_bridge');
+            
+            $this->categories = $this->model_feed_hansoftz_feed_opencart_bridge->getCategoryPaths();
             foreach($this->cats as $category){
                 $this->category_uri = $this->json->apiGroups->affiliate->apiListings->{$category}->availableVariants->{$this->version}->get;
                 $this->setProductJson();
@@ -92,13 +96,13 @@ class ModelFeedHansoftzFeed extends Model {
         }
         
         private function loopProductJson(){
-            $this->load->model('feed/hansoftz_feed_opencart_bridge');
+            
             $language_id = $this->config->get('config_language_id');
             if($this->product_json){
                 foreach($this->product_json->productInfoList as $key=>$product){
-                    
                     // We are only interested in InStock Product
-                    if($product->productBaseInfo->productAttributes->inStock){
+//                    if($product->productBaseInfo->productAttributes->inStock){
+                        
                         $this->collection[$key]['product_description'][$language_id] = array(
                             'name' => $product->productBaseInfo->productAttributes->title,
                             'meta_title' => $product->productBaseInfo->productAttributes->title,
@@ -112,14 +116,46 @@ class ModelFeedHansoftzFeed extends Model {
                             'mrp' => $product->productBaseInfo->productAttributes->maximumRetailPrice->amount,
                             'cod' => $product->productBaseInfo->productAttributes->codAvailable,
                             'emi' => $product->productBaseInfo->productAttributes->emiAvailable,
+                            'sizeVariants' => $product->productBaseInfo->productAttributes->sizeVariants,
+                            'colorVariants' => $product->productBaseInfo->productAttributes->colorVariants,
+                            'productUrl' => $product->productBaseInfo->productAttributes->productUrl,
                             'discount' => $product->productBaseInfo->productAttributes->discountPercentage,
-                            'manufacturer_id' => $this->model_feed_hansoftz_feed_opencart_bridge->saveManufacurer($product->productBaseInfo->productAttributes->sellingPrice->productBrand),
+                            'manufacturer_id' => $this->model_feed_hansoftz_feed_opencart_bridge->saveManufacurer($product->productBaseInfo->productAttributes->productBrand),
                             'stock_status_id' => $product->productBaseInfo->productAttributes->inStock
                         );
-                    }else{
+                        
+                        
+                        // Fetch category and save
+                        $category_chain = str_replace('Apparels>', '',$product->productBaseInfo->productIdentifier->categoryPaths->categoryPath[0][0]->title);
+                        
+                        if (isset($this->categories[$category_chain])) {
+                            $category_id = $this->categories[$category_chain];
+                            if ($category_id)
+                                $this->collection[$key]['product_category'][] = $category_id;
+                        }else {
+                            if (!empty($category_chain))
+                                $categoryData = $this->model_feed_hansoftz_feed_opencart_bridge->saveCategory($category_chain);
+                            if ($categoryData['id']){
+                                $this->collection[$key]['product_category'][] = $categoryData['id'];
+                                $this->categories[$categoryData['path']] = $categoryData['id'];
+                            }
+                        }
+                        
+                        // Collect options to save after product is added/updated
+                        
+                        $this->collection[$key]['product_option'] = array(
+                            array('name'=>"size","value"=>$product->productBaseInfo->productAttributes->size),
+                            array('name'=>"color","value"=>$product->productBaseInfo->productAttributes->color),
+                            array('name'=>"sizeUnit","value"=>$product->productBaseInfo->productAttributes->sizeUnit),
+                        );
+                        
+                        
+//                    }else{
                         // OutofStock product has to be removed if exists in system
-                    }
+//                    }
                 }
+                
+                print_r($this->collection); exit;
             }
         }
 
