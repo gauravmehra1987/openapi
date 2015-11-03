@@ -86,23 +86,24 @@ class ModelFeedHansoftzFeed extends Model {
         
         public function run(){
             $this->load->model('feed/hansoftz_feed_opencart_bridge');
-            
+            $this->_l("Starting the Feed script...");
             $this->categories = $this->model_feed_hansoftz_feed_opencart_bridge->getCategoryPaths();
             foreach($this->cats as $category){
                 $this->category_uri = $this->json->apiGroups->affiliate->apiListings->{$category}->availableVariants->{$this->version}->get;
+                $this->_l("category url: " . $this->category_uri);
                 $this->setProductJson();
                 $this->loopProductJson();
-                $this->saveCollection();
             }
         }
         
         private function loopProductJson(){
             
             $language_id = $this->config->get('config_language_id');
+            
             if($this->product_json){
-                foreach($this->product_json->productInfoList as $key=>$product){  if($key>10) break;
+                foreach($this->product_json->productInfoList as $key=>$product){  //if($key>10) break;
                     // We are only interested in InStock Product
-//                    if($product->productBaseInfo->productAttributes->inStock){
+                    if($product->productBaseInfo->productAttributes->inStock){
                         
                         $this->collection[$key]['product_description'][$language_id] = array(
                             'name' => $product->productBaseInfo->productAttributes->title,
@@ -157,13 +158,31 @@ class ModelFeedHansoftzFeed extends Model {
                         );
                         
                         
-//                    }else{
-////                      OutofStock product has to be removed if exists in system
-//                        $product_id = $this->model_feed_hansoftz_feed_opencart_bridge->product_exists($product->productBaseInfo->productIdentifier->productId);
-//                        $this->model_feed_hansoftz_feed_opencart_bridge->deleteProduct($product_id);
-//                    }
+                    }else{
+//                      OutofStock product has to be removed if exists in system
+                        $product_id = $this->model_feed_hansoftz_feed_opencart_bridge->product_exists($product->productBaseInfo->productIdentifier->productId);
+                        $this->model_feed_hansoftz_feed_opencart_bridge->deleteProduct($product_id);
+                    }
                 }
                 
+            }
+            
+            //Now save new product collection AND reset once all are saved.
+            if(!empty($this->collection)){
+                
+                $this->_l("products found : " . count($this->collection));
+                
+                $this->saveCollection();
+                $this->collection = array();
+                sleep(5);
+            }
+            
+            
+            //recursively call next url untill finished
+            if(!empty($this->product_json->nextUrl)){
+                $this->category_uri = $this->product_json->nextUrl;
+                $this->setProductJson();
+                $this->loopProductJson();
             }
         }
         
@@ -179,13 +198,12 @@ class ModelFeedHansoftzFeed extends Model {
         }
 
     public function _l($mesg){
-            echo date("Y-m-d h:i:s " . $mesg);
+            echo date("Y-m-d h:i:s " . $mesg) . "\n";
     }
     
     public function saveImage($uri,$path){
         $image_name = substr($uri, strrpos($uri,'/'), strlen($uri));
         $dir = 'import/' .$path;
-//        echo DIR_IMAGE . $dir; exit;
         if(!is_dir(DIR_IMAGE . $dir))
             mkdir(DIR_IMAGE . $dir,0777,TRUE);
         copy($uri,DIR_IMAGE . $dir . $image_name);
