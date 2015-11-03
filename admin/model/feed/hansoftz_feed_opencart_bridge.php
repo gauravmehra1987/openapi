@@ -135,8 +135,8 @@ class ModelFeedHansoftzFeedOpencartBridge extends Model{
         $option = new stdClass();
         $option->name = $option_name;
         $option->type = "select";
-        $option->value = $option_value;
-        
+        $option->option_value = $option_value;
+        $option->required = 0;
       
         if(is_array($option))
             $option = (object)$option;
@@ -175,8 +175,6 @@ class ModelFeedHansoftzFeedOpencartBridge extends Model{
             $is_new = true;
 
             $this->db->query("insert into " . DB_PREFIX . "option_description set option_id='$option_id', language_id='" . $language_id . "', name='" . $this->db->escape($option->name) . "'");
-            $this->writeLog("New option created - $option->name");
-
             // repeat option request
             //
 	    $qry = $this->db->query("SELECT o.option_id FROM `" . DB_PREFIX . "option` o INNER JOIN " . DB_PREFIX . "option_description od ON o.option_id = od.option_id WHERE language_id = '" . $language_id . "' AND o.type='$option->type' AND od.name='$option->name'");
@@ -269,8 +267,17 @@ class ModelFeedHansoftzFeedOpencartBridge extends Model{
         $product = $data['product'];
         if(empty($product['model']) && !isset($data['product_description'][$this->config->get('config_language_id')]))
             return false;
-        $this->db->query("INSERT INTO " . DB_PREFIX . "product SET model = '" . $this->db->escape($product['model']) . "', sku = '" . $this->db->escape($product['sku']) . "', upc = '" . $this->db->escape($product['upc']) . "', ean = '" . $this->db->escape($product['ean']) . "', jan = '" . $this->db->escape($product['jan']) . "', isbn = '" . $this->db->escape($product['isbn']) . "', mpn = '" . $this->db->escape($product['mpn']) . "', location = '" . $this->db->escape($product['location']) . "', quantity = '" . (int) $product['quantity'] . "', minimum = '" . (int) $product['minimum'] . "', subtract = '" . (int) $product['subtract'] . "', stock_status_id = '" . (int) $product['stock_status_id'] . "', date_available = '" . $this->db->escape($product['date_available']) . "', manufacturer_id = '" . (int) $product['manufacturer_id'] . "', shipping = '" . (int) $product['shipping'] . "', price = '" . (float) $product['price'] . "', points = '" . (int) $product['points'] . "', weight = '" . (float) $product['weight'] . "', weight_class_id = '" . (int) $product['weight_class_id'] . "', length = '" . (float) $product['length'] . "', width = '" . (float) $product['width'] . "', height = '" . (float) $product['height'] . "', length_class_id = '" . (int) $product['length_class_id'] . "', status = '" . (int) $product['status'] . "', tax_class_id = '" . $this->db->escape($product['tax_class_id']) . "', sort_order = '" . (int) $product['sort_order'] . "', date_added = NOW()");
-
+        
+        if (isset($data['product'])) {
+            $sql = 'INSERT INTO `' . DB_PREFIX . 'product` SET ';
+            foreach ($data['product'] as $field => $value) { //if(!isset($this->pf[$field])) continue;
+                $sql .= ' ' . $field . '="' . $this->db->escape($value) . '",';
+            }
+            $sql = trim($sql, ',');
+             
+            $this->db->query($sql);
+        }
+        
         $product_id = $this->db->getLastId();
 
         if (isset($product['image'])) {
@@ -278,7 +285,7 @@ class ModelFeedHansoftzFeedOpencartBridge extends Model{
         }
 
         foreach ($data['product_description'] as $language_id => $value) {
-            $this->db->query("INSERT INTO " . DB_PREFIX . "product_description SET product_id = '" . (int) $product_id . "', language_id = '" . (int) $language_id . "', name = '" . $this->db->escape(htmlentities($value['name'], ENT_QUOTES, "UTF-8")) . "', meta_keyword = '" . $this->db->escape(htmlentities($value['meta_keyword'], ENT_QUOTES, "UTF-8")) . "', meta_description = '" . $this->db->escape(htmlentities($value['meta_description'], ENT_QUOTES, "UTF-8")) . "', description = '" . $this->db->escape(htmlentities($value['description'], ENT_QUOTES, "UTF-8")) . "', tag = '" . $this->db->escape(htmlentities($value['tag'], ENT_QUOTES, "UTF-8")) . "'");
+            $this->db->query("INSERT INTO " . DB_PREFIX . "product_description SET product_id = '" . (int) $product_id . "', language_id = '" . (int) $language_id . "', name = '" . $this->db->escape(htmlentities($value['name'], ENT_QUOTES, "UTF-8")) . "',  meta_description = '" . $this->db->escape(htmlentities($value['meta_description'], ENT_QUOTES, "UTF-8")) . "', description = '" . $this->db->escape(htmlentities($value['description'], ENT_QUOTES, "UTF-8")) . "'");
         }
 
         if (isset($data['product_store'])) {
@@ -288,78 +295,27 @@ class ModelFeedHansoftzFeedOpencartBridge extends Model{
         }
 
         
-
         if(isset($data['product_option'])){
             foreach($data['product_option'] as $option){
-                $this->saveOption($option,$product_id);
+                $this->saveOption($option['name'],$option['value'],$product_id);
             }
         }
 
-        if (isset($data['product_discount'])) {
-            foreach ($data['product_discount'] as $product_discount) {
-                if ($product_discount['price'])
-                    $this->db->query("INSERT INTO " . DB_PREFIX . "product_discount SET product_id = '" . (int) $product_id . "', customer_group_id = '" . (int) $product_discount['customer_group_id'] . "', quantity = '" . (int) $product_discount['quantity'] . "', priority = '" . (int) $product_discount['priority'] . "', price = '" . (float) $product_discount['price'] . "', date_start = '" . $this->db->escape($product_discount['date_start']) . "', date_end = '" . $this->db->escape($product_discount['date_end']) . "'");
-            }
-        }
-
-        if (isset($data['product_special'])) {
-            foreach ($data['product_special'] as $product_special) {
-                if ($product_special['price'])
-                    $this->db->query("INSERT INTO " . DB_PREFIX . "product_special SET product_id = '" . (int) $product_id . "', customer_group_id = '" . (int) $product_special['customer_group_id'] . "', priority = '" . (int) $product_special['priority'] . "', price = '" . (float) $product_special['price'] . "', date_start = '" . $this->db->escape($product_special['date_start']) . "', date_end = '" . $this->db->escape($product_special['date_end']) . "'");
-            }
-        }
-
+        
         if (isset($data['product_image'])) {
             foreach ($data['product_image'] as $product_image) {
                 $this->db->query("INSERT INTO " . DB_PREFIX . "product_image SET product_id = '" . (int) $product_id . "', image = '" . $this->db->escape(html_entity_decode($product_image['image'], ENT_QUOTES, 'UTF-8')) . "', sort_order = '" . (int) $product_image['sort_order'] . "'");
             }
         }
 
-        if (isset($data['product_download'])) {
-            foreach ($data['product_download'] as $download_id) {
-                $this->db->query("INSERT INTO " . DB_PREFIX . "product_to_download SET product_id = '" . (int) $product_id . "', download_id = '" . (int) $download_id . "'");
-            }
-        }
-
+        
         if (isset($data['product_category'])) {
             foreach ($data['product_category'] as $category_id) {
                 $this->db->query("INSERT IGNORE INTO " . DB_PREFIX . "product_to_category SET product_id = '" . (int) $product_id . "', category_id = '" . (int) $category_id . "'");
             }
         }
 
-        if (isset($data['product_filter'])) {
-            foreach ($data['product_filter'] as $filter_id) {
-                $this->db->query("INSERT INTO " . DB_PREFIX . "product_filter SET product_id = '" . (int) $product_id . "', filter_id = '" . (int) $filter_id . "'");
-            }
-        }
-
-        if (isset($data['product_related'])) {
-            foreach ($data['product_related'] as $related_id) {
-                $this->db->query("DELETE FROM " . DB_PREFIX . "product_related WHERE product_id = '" . (int) $product_id . "' AND related_id = '" . (int) $related_id . "'");
-                $this->db->query("INSERT INTO " . DB_PREFIX . "product_related SET product_id = '" . (int) $product_id . "', related_id = '" . (int) $related_id . "'");
-                $this->db->query("DELETE FROM " . DB_PREFIX . "product_related WHERE product_id = '" . (int) $related_id . "' AND related_id = '" . (int) $product_id . "'");
-                $this->db->query("INSERT INTO " . DB_PREFIX . "product_related SET product_id = '" . (int) $related_id . "', related_id = '" . (int) $product_id . "'");
-            }
-        }
-
-        if (isset($data['product_reward'])) {
-            foreach ($data['product_reward'] as $customer_group_id => $product_reward) {
-                $this->db->query("INSERT INTO " . DB_PREFIX . "product_reward SET product_id = '" . (int) $product_id . "', customer_group_id = '" . (int) $customer_group_id . "', points = '" . (int) $product_reward['points'] . "'");
-            }
-        }
-
-        if (isset($data['product_layout'])) {
-            foreach ($data['product_layout'] as $store_id => $layout) {
-                if ($layout['layout_id']) {
-                    $this->db->query("INSERT INTO " . DB_PREFIX . "product_to_layout SET product_id = '" . (int) $product_id . "', store_id = '" . (int) $store_id . "', layout_id = '" . (int) $layout['layout_id'] . "'");
-                }
-            }
-        }
-
-        if ($product['keyword']) {
-            $this->db->query("INSERT INTO " . DB_PREFIX . "url_alias SET query = 'product_id=" . (int) $product_id . "', keyword = '" . $this->db->escape($product['keyword']) . "'");
-        }
-
+        
         if (isset($data['product_profiles'])) {
             foreach ($data['product_profiles'] as $profile) {
                 $this->db->query("INSERT INTO `" . DB_PREFIX . "product_profile` SET `product_id` = " . (int) $product_id . ", customer_group_id = " . (int) $profile['customer_group_id'] . ", `profile_id` = " . (int) $profile['profile_id']);
@@ -375,14 +331,11 @@ class ModelFeedHansoftzFeedOpencartBridge extends Model{
         $queries = array();
         if (isset($data['product'])) {
             $sql = 'UPDATE `' . DB_PREFIX . 'product` SET ';
-            foreach ($data['product'] as $field => $value) { if(!isset($this->pf[$field])) continue;
+            foreach ($data['product'] as $field => $value) { //if(!isset($this->pf[$field])) continue;
                 $sql .= ' ' . $field . '="' . $this->db->escape($value) . '",';
             }
             $sql = trim($sql, ',');
-            $sql .= ' where product_id="' . $product_id . '"';
-//            echo $sql; exit;
-//            $queries[] = $sql;
-           
+            $sql .= ' where product_id="' . $product_id . '"';           
             $this->db->query($sql);
         }
         if (isset($data['product_description'])){
@@ -418,7 +371,7 @@ class ModelFeedHansoftzFeedOpencartBridge extends Model{
         }
         
 
-        if (isset($data['product_category'])) {
+        if (isset($data['product_category'])){
             $queries[] = $sql = "DELETE FROM " . DB_PREFIX . "product_to_category WHERE product_id = '" . (int) $product_id . "'";
             $this->db->query($sql);
             foreach ($data['product_category'] as $category_id) {
@@ -427,29 +380,8 @@ class ModelFeedHansoftzFeedOpencartBridge extends Model{
             }
         }
  
-        if (isset($data['product_discount'])) {
-            $queries[]= $sql = "DELETE FROM " . DB_PREFIX . "product_discount WHERE product_id = '" . (int) $product_id . "'";
-            $this->db->query($sql);
-            foreach ($data['product_discount'] as $product_discount) {
-                if ($product_discount['price']){
-                    $queries[] = $sql = "INSERT INTO " . DB_PREFIX . "product_discount SET product_id = '" . (int) $product_id . "', customer_group_id = '" . (int) $product_discount['customer_group_id'] . "', quantity = '" . (int) $product_discount['quantity'] . "', priority = '" . (int) $product_discount['priority'] . "', price = '" . (float) $product_discount['price'] . "', date_start = '" . $this->db->escape($product_discount['date_start']) . "', date_end = '" . $this->db->escape($product_discount['date_end']) . "'";
-                    $this->db->query($sql);
-                }
-            }
-        }
-
-        if (isset($data['product_special'])) {
-            $queries[] = $sql =  "DELETE FROM " . DB_PREFIX . "product_special WHERE product_id = '" . (int) $product_id . "'";
-            $this->db->query($sql);
-            foreach($data['product_special'] as $product_special){
-                if ($product_special['price']){
-                    $queries[] = $sql = "INSERT INTO " . DB_PREFIX . "product_special SET product_id = '" . (int) $product_id . "', customer_group_id = '" . (int) $product_special['customer_group_id'] . "', priority = '" . (int) $product_special['priority'] . "', price = '" . (float) $product_special['price'] . "', date_start = '" . $this->db->escape($product_special['date_start']) . "', date_end = '" . $this->db->escape($product_special['date_end']) . "'";
-                    $this->db->query($sql);
-                }
-            }
-        }
-        if (!empty($data['product_attribute'])) { 
-//            $queries[] = "DELETE FROM " . DB_PREFIX . "product_attribute WHERE product_id = '" . (int) $product_id . "'";
+        
+        if (!empty($data['product_attribute'])) {
             foreach ($data['product_attribute'] as $product_attribute) {
                 if ($product_attribute['attribute_id']) {
                     foreach ($product_attribute['product_attribute_description'] as $language_id => $product_attribute_description) {
@@ -464,31 +396,6 @@ class ModelFeedHansoftzFeedOpencartBridge extends Model{
             }
         }
         
-        if (isset($data['product']['keyword'])){
-            $queries[] = $sql = "DELETE FROM " . DB_PREFIX . "url_alias WHERE query = 'product_id=" . (int)$product_id. "'";
-            $this->db->query($sql);
-            if(!empty($data['product']['keyword'])){
-                $queries[] = $sql = "INSERT INTO " . DB_PREFIX . "url_alias SET query = 'product_id=" . (int) $product_id . "', keyword = '" . $this->db->escape($data['product']['keyword']) . "'";
-            }
-            $this->db->query($sql);
-        }
-        foreach ($queries as $query){
-            $this->writeLog($query,'sql');
-        }
-        
-        if(isset($data['product_related'])){
-            $this->db->query("DELETE FROM " . DB_PREFIX . "product_related WHERE product_id = '" . (int)$product_id . "'");
-//            $this->db->query("DELETE FROM " . DB_PREFIX . "product_related WHERE related_id = '" . (int)$product_id . "'");
-            if (isset($data['product_related'])) {
-                foreach ($data['product_related'] as $related_id) {
-                    $this->db->query("DELETE FROM " . DB_PREFIX . "product_related WHERE product_id = '" . (int)$product_id . "' AND related_id = '" . (int)$related_id . "'");
-                    $this->db->query("INSERT INTO " . DB_PREFIX . "product_related SET product_id = '" . (int)$product_id . "', related_id = '" . (int)$related_id . "'");
-//                    $this->db->query("DELETE FROM " . DB_PREFIX . "product_related WHERE product_id = '" . (int)$related_id . "' AND related_id = '" . (int)$product_id . "'");
-//                    $this->db->query("INSERT INTO " . DB_PREFIX . "product_related SET product_id = '" . (int)$related_id . "', related_id = '" . (int)$product_id . "'");
-                }
-            }
-        }
-
         if(isset($data['product_store'])) {
              $this->db->query("DELETE FROM " . DB_PREFIX . "product_to_store WHERE product_id = '" . (int)$product_id . "'");
 	          foreach ($data['product_store'] as $store_id) {
@@ -501,8 +408,42 @@ class ModelFeedHansoftzFeedOpencartBridge extends Model{
             $this->db->query("DELETE FROM " . DB_PREFIX . "product_option_value WHERE product_id = '" . (int)$product_id . "'");
             
             foreach($data['product_option'] as $option){
-                $this->saveOption($option,$product_id);
+                $this->saveOption($option['name'],$option['value'],$product_id);
             }
         }
     }
+    
+    public function product_exists($model){
+        $query = $this->db->query("select product_id from " . DB_PREFIX . "product where model = '".$model."'");
+        if($query->num_rows){
+            return $query->row['product_id'];
+        }
+        return false;
+    }
+    
+    public function deleteProduct($product_id) {
+		$this->db->query("DELETE FROM " . DB_PREFIX . "product WHERE product_id = '" . (int)$product_id . "'");
+		$this->db->query("DELETE FROM " . DB_PREFIX . "product_attribute WHERE product_id = '" . (int)$product_id . "'");
+		$this->db->query("DELETE FROM " . DB_PREFIX . "product_description WHERE product_id = '" . (int)$product_id . "'");
+		$this->db->query("DELETE FROM " . DB_PREFIX . "product_discount WHERE product_id = '" . (int)$product_id . "'");
+		$this->db->query("DELETE FROM " . DB_PREFIX . "product_filter WHERE product_id = '" . (int)$product_id . "'");
+		$this->db->query("DELETE FROM " . DB_PREFIX . "product_image WHERE product_id = '" . (int)$product_id . "'");
+		$this->db->query("DELETE FROM " . DB_PREFIX . "product_option WHERE product_id = '" . (int)$product_id . "'");
+		$this->db->query("DELETE FROM " . DB_PREFIX . "product_option_value WHERE product_id = '" . (int)$product_id . "'");
+		$this->db->query("DELETE FROM " . DB_PREFIX . "product_related WHERE product_id = '" . (int)$product_id . "'");
+		$this->db->query("DELETE FROM " . DB_PREFIX . "product_related WHERE related_id = '" . (int)$product_id . "'");
+		$this->db->query("DELETE FROM " . DB_PREFIX . "product_reward WHERE product_id = '" . (int)$product_id . "'");
+		$this->db->query("DELETE FROM " . DB_PREFIX . "product_special WHERE product_id = '" . (int)$product_id . "'");
+		$this->db->query("DELETE FROM " . DB_PREFIX . "product_to_category WHERE product_id = '" . (int)$product_id . "'");
+		$this->db->query("DELETE FROM " . DB_PREFIX . "product_to_download WHERE product_id = '" . (int)$product_id . "'");
+		$this->db->query("DELETE FROM " . DB_PREFIX . "product_to_layout WHERE product_id = '" . (int)$product_id . "'");
+		$this->db->query("DELETE FROM " . DB_PREFIX . "product_to_store WHERE product_id = '" . (int)$product_id . "'");
+		$this->db->query("DELETE FROM " . DB_PREFIX . "product_recurring WHERE product_id = " . (int)$product_id);
+		$this->db->query("DELETE FROM " . DB_PREFIX . "review WHERE product_id = '" . (int)$product_id . "'");
+		$this->db->query("DELETE FROM " . DB_PREFIX . "url_alias WHERE query = 'product_id=" . (int)$product_id . "'");
+
+		$this->cache->delete('product');
+
+		
+	}
 }

@@ -117,7 +117,6 @@ class ControllerFeedHansoftzFeed extends Controller {
             $this->_xx('fk_feed_status');
             
             if($this->_xx('fk_feed_status')){
-//                echo "Running script for flipkart";
                 $fk = $this->model_feed_hansoftz_feed
                         ->setApi($this->_xx('fk_feed_uri'))
                         ->setHeader(array(
@@ -133,5 +132,9 @@ class ControllerFeedHansoftzFeed extends Controller {
                         ->run();
             }
             
+        }
+        
+        public function _l($mesg){
+            echo date("Y-m-d h:i:s " . $mesg);
         }
 }

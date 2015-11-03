@@ -92,6 +92,7 @@ class ModelFeedHansoftzFeed extends Model {
                 $this->category_uri = $this->json->apiGroups->affiliate->apiListings->{$category}->availableVariants->{$this->version}->get;
                 $this->setProductJson();
                 $this->loopProductJson();
+                $this->saveCollection();
             }
         }
         
@@ -99,7 +100,7 @@ class ModelFeedHansoftzFeed extends Model {
             
             $language_id = $this->config->get('config_language_id');
             if($this->product_json){
-                foreach($this->product_json->productInfoList as $key=>$product){
+                foreach($this->product_json->productInfoList as $key=>$product){  if($key>10) break;
                     // We are only interested in InStock Product
 //                    if($product->productBaseInfo->productAttributes->inStock){
                         
@@ -109,7 +110,12 @@ class ModelFeedHansoftzFeed extends Model {
                             'meta_description' => $product->productBaseInfo->productAttributes->productDescription,
                             'description' => $product->productBaseInfo->productAttributes->productDescription,
                         );
-
+//                        
+                        $category_chain = str_replace('Apparels>', '',$product->productBaseInfo->productIdentifier->categoryPaths->categoryPath[0][0]->title);
+                        
+                        $image_path = strtolower(str_replace(' ','-',str_replace('>','/',$category_chain)));
+                       
+                        $image = $this->saveImage($product->productBaseInfo->productAttributes->imageUrls->unknown,$image_path);
                         $this->collection[$key]['product'] = array(
                             'model' => $product->productBaseInfo->productIdentifier->productId,
                             'price' => $product->productBaseInfo->productAttributes->sellingPrice->amount,
@@ -119,15 +125,16 @@ class ModelFeedHansoftzFeed extends Model {
                             'sizeVariants' => $product->productBaseInfo->productAttributes->sizeVariants,
                             'colorVariants' => $product->productBaseInfo->productAttributes->colorVariants,
                             'productUrl' => $product->productBaseInfo->productAttributes->productUrl,
+                            'image'     => $image,
+                            'imageurl' => $product->productBaseInfo->productAttributes->imageUrls->unknown,
                             'discount' => $product->productBaseInfo->productAttributes->discountPercentage,
+                            'quantity'  =>  999,
                             'manufacturer_id' => $this->model_feed_hansoftz_feed_opencart_bridge->saveManufacurer($product->productBaseInfo->productAttributes->productBrand),
                             'stock_status_id' => $product->productBaseInfo->productAttributes->inStock
                         );
                         
                         
                         // Fetch category and save
-                        $category_chain = str_replace('Apparels>', '',$product->productBaseInfo->productIdentifier->categoryPaths->categoryPath[0][0]->title);
-                        
                         if (isset($this->categories[$category_chain])) {
                             $category_id = $this->categories[$category_chain];
                             if ($category_id)
@@ -151,13 +158,37 @@ class ModelFeedHansoftzFeed extends Model {
                         
                         
 //                    }else{
-                        // OutofStock product has to be removed if exists in system
+////                      OutofStock product has to be removed if exists in system
+//                        $product_id = $this->model_feed_hansoftz_feed_opencart_bridge->product_exists($product->productBaseInfo->productIdentifier->productId);
+//                        $this->model_feed_hansoftz_feed_opencart_bridge->deleteProduct($product_id);
 //                    }
                 }
                 
-                print_r($this->collection); exit;
+            }
+        }
+        
+        public function saveCollection(){
+            foreach($this->collection as $product){
+                $product_id = $this->model_feed_hansoftz_feed_opencart_bridge->product_exists($product['product']['model']);
+                if($product_id){
+                    $this->model_feed_hansoftz_feed_opencart_bridge->editProduct($product_id,$product);
+                }else{
+                    $this->model_feed_hansoftz_feed_opencart_bridge->addProduct($product);
+                }
             }
         }
 
+    public function _l($mesg){
+            echo date("Y-m-d h:i:s " . $mesg);
+    }
     
+    public function saveImage($uri,$path){
+        $image_name = substr($uri, strrpos($uri,'/'), strlen($uri));
+        $dir = 'import/' .$path;
+//        echo DIR_IMAGE . $dir; exit;
+        if(!is_dir(DIR_IMAGE . $dir))
+            mkdir(DIR_IMAGE . $dir,0777,TRUE);
+        copy($uri,DIR_IMAGE . $dir . $image_name);
+        return $dir . '/' . $image_name;
+    }
 }
