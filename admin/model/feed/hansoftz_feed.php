@@ -115,8 +115,9 @@ class ModelFeedHansoftzFeed extends Model {
                         $category_chain = str_replace('Apparels>', '',$product->productBaseInfo->productIdentifier->categoryPaths->categoryPath[0][0]->title);
                         
                         $image_path = strtolower(str_replace(' ','-',str_replace('>','/',$category_chain)));
-                       
+                        if(isset($product->productBaseInfo->productAttributes->imageUrls->unknown)){
                         $image = $this->saveImage($product->productBaseInfo->productAttributes->imageUrls->unknown,$image_path);
+                        }else $image = "";
                         $this->collection[$key]['product'] = array(
                             'model' => $product->productBaseInfo->productIdentifier->productId,
                             'price' => $product->productBaseInfo->productAttributes->sellingPrice->amount,
@@ -174,6 +175,7 @@ class ModelFeedHansoftzFeed extends Model {
                 
                 $this->saveCollection();
                 $this->collection = array();
+                $this->_l("slept for 5 sec");
                 sleep(5);
             }
             
@@ -181,6 +183,7 @@ class ModelFeedHansoftzFeed extends Model {
             //recursively call next url untill finished
             if(!empty($this->product_json->nextUrl)){
                 $this->category_uri = $this->product_json->nextUrl;
+                $this->_l("fetching next category : " . count($this->category_uri));
                 $this->setProductJson();
                 $this->loopProductJson();
             }
