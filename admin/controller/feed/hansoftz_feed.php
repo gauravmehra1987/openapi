@@ -118,18 +118,18 @@ class ControllerFeedHansoftzFeed extends Controller {
             
             if($this->_xx('fk_feed_status')){
                 $fk = $this->model_feed_hansoftz_feed
-                        ->setApi($this->_xx('fk_feed_uri'))
-                        ->setHeader(array(
-                            'Cache-Control: max-age=999999',
-                            'Fk-Affiliate-Id: '.$this->_xx('fk_tracking_id'),
-                            'Fk-Affiliate-Token: '.$this->_xx('fk_token')
-                        ))
-                        ->setJson()
-                
-                        ->setVersion($this->_xx('fk_api_version'))
-                        
-                        ->setCats(explode(',', $this->_xx('fk_cats')))
-                        ->run();
+                    ->setApi($this->_xx('fk_feed_uri'))
+                    ->setHeader(array(
+                        'Cache-Control: max-age=999999',
+                        'Fk-Affiliate-Id: '.$this->_xx('fk_tracking_id'),
+                        'Fk-Affiliate-Token: '.$this->_xx('fk_token')
+                    ))
+                    ->setJson()
+
+                    ->setVersion($this->_xx('fk_api_version'))
+
+                    ->setCats(explode(',', $this->_xx('fk_cats')))
+                    ->run();
             }
             
         }

@@ -131,6 +131,7 @@ class ModelFeedHansoftzFeed extends Model {
                             'imageurl' => $product->productBaseInfo->productAttributes->imageUrls->unknown,
                             'discount' => $product->productBaseInfo->productAttributes->discountPercentage,
                             'quantity'  =>  999,
+                            'status'  =>  1,
                             'manufacturer_id' => $this->model_feed_hansoftz_feed_opencart_bridge->saveManufacurer($product->productBaseInfo->productAttributes->productBrand),
                             'stock_status_id' => $product->productBaseInfo->productAttributes->inStock
                         );
@@ -176,7 +177,7 @@ class ModelFeedHansoftzFeed extends Model {
                 $this->saveCollection();
                 $this->collection = array();
                 $this->_l("slept for 5 sec");
-                sleep(5);
+                sleep(1);
             }
             
             
