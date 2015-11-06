@@ -119,9 +119,10 @@ class ModelFeedHansoftzFeedOpencartBridge extends Model{
     }
     
     public function saveManufacurer($name) {
+        if(empty($name)) return false;
         $sel = $this->db->query("SELECT manufacturer_id FROM " . DB_PREFIX . "manufacturer AS m WHERE name='" . $this->db->escape($name) . "'");
         if (empty($sel->row['manufacturer_id'])) {
-            $this->db->query("INSERT INTO " . DB_PREFIX . "manufacturer set name = '" . $name . "'");
+            $this->db->query("INSERT INTO " . DB_PREFIX . "manufacturer set name = '" . $this->db->escape($name) . "'");
             $manufacturer_id = $this->db->getLastId();
             $this->db->query("INSERT INTO " . DB_PREFIX . "manufacturer_to_store set manufacturer_id = '" . $manufacturer_id . "', store_id = '0'");
         } else {
@@ -286,6 +287,7 @@ class ModelFeedHansoftzFeedOpencartBridge extends Model{
 
         foreach ($data['product_description'] as $language_id => $value) {
             $this->db->query("INSERT INTO " . DB_PREFIX . "product_description SET product_id = '" . (int) $product_id . "', language_id = '" . (int) $language_id . "', name = '" . $this->db->escape(htmlentities($value['name'], ENT_QUOTES, "UTF-8")) . "',  meta_description = '" . $this->db->escape(htmlentities($value['meta_description'], ENT_QUOTES, "UTF-8")) . "', description = '" . $this->db->escape(htmlentities($value['description'], ENT_QUOTES, "UTF-8")) . "'");
+            $this->db->query("INSERT INTO " . DB_PREFIX . "url_alias SET query = 'product_id=" . (int)$product_id . "', keyword = '" . $this->slugify($this->db->escape(htmlentities($value['name'], ENT_QUOTES, "UTF-8"))) . "'");
         }
 
         if (isset($data['product_store'])) {
@@ -355,6 +357,8 @@ class ModelFeedHansoftzFeedOpencartBridge extends Model{
                 $queries[] = $sql;
                 $this->db->query($sql);
             }
+            $this->db->query("DELETE FROM " . DB_PREFIX . "url_alias WHERE query = 'product_id=" . (int)$product_id . "'");
+            $this->db->query("INSERT INTO " . DB_PREFIX . "url_alias SET query = 'product_id=" . (int)$product_id . "', keyword = '" . $this->slugify($this->db->escape(htmlentities($data['product_description'][$this->config->get('config_language_id')]['name'], ENT_QUOTES, "UTF-8"))) . "'");
         }
 
         if (isset($data['product_image'])) {
@@ -446,4 +450,19 @@ class ModelFeedHansoftzFeedOpencartBridge extends Model{
 
 		
 	}
+        
+        public function slugify($text){ 
+            
+            $text = preg_replace('~[^\\pL\d]+~u', '-', $text);
+
+            $text = trim($text, '-');
+
+            $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
+            $text = strtolower($text);
+            $text = preg_replace('~[^-\w]+~', '', $text);
+            if (empty($text)){
+              return 'n-a';
+            }
+            return $text;
+        }
 }

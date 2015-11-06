@@ -83,6 +83,13 @@ class ModelFeedHansoftzFeed extends Model {
             }
         }
 
+        public function kickstart($url){
+            try{
+            $this->product_json = $this->sendRequest($url);
+            }catch(Exception $e){
+                echo 'Internal exception: ',  $e->getMessage(), "\n";
+            }
+        }
         
         public function run(){
             $this->load->model('feed/hansoftz_feed_opencart_bridge');
@@ -91,7 +98,8 @@ class ModelFeedHansoftzFeed extends Model {
             foreach($this->cats as $category){
                 $this->category_uri = $this->json->apiGroups->affiliate->apiListings->{$category}->availableVariants->{$this->version}->get;
                 $this->_l("category url: " . $this->category_uri);
-                $this->setProductJson();
+//                $this->setProductJson();
+                $this->kickstart("https://affiliate-api.flipkart.net/affiliate/feeds/gauravmeh4/category/2oq-c1r/55ab94fc73a4773ffb93a8fd.json?expiresAt=1446669916041&sig=76d61feb80e04cd16b83fde405076a37");
                 $this->loopProductJson();
             }
         }
@@ -111,13 +119,15 @@ class ModelFeedHansoftzFeed extends Model {
                             'meta_description' => $product->productBaseInfo->productAttributes->productDescription,
                             'description' => $product->productBaseInfo->productAttributes->productDescription,
                         );
-//                        
+                        
+                        $this->_l("Category Path: " . $product->productBaseInfo->productIdentifier->categoryPaths->categoryPath[0][0]->title);
                         $category_chain = str_replace('Apparels>', '',$product->productBaseInfo->productIdentifier->categoryPaths->categoryPath[0][0]->title);
                         
                         $image_path = strtolower(str_replace(' ','-',str_replace('>','/',$category_chain)));
                         if(isset($product->productBaseInfo->productAttributes->imageUrls->unknown)){
-                        $image = $this->saveImage($product->productBaseInfo->productAttributes->imageUrls->unknown,$image_path);
-                        }else $image = "";
+                            $image_url = $product->productBaseInfo->productAttributes->imageUrls->unknown;
+                            $image = $this->saveImage($product->productBaseInfo->productAttributes->imageUrls->unknown,$image_path);
+                        }else $image = ""; $image_url='';
                         $this->collection[$key]['product'] = array(
                             'model' => $product->productBaseInfo->productIdentifier->productId,
                             'price' => $product->productBaseInfo->productAttributes->sellingPrice->amount,
@@ -128,13 +138,17 @@ class ModelFeedHansoftzFeed extends Model {
                             'colorVariants' => $product->productBaseInfo->productAttributes->colorVariants,
                             'productUrl' => $product->productBaseInfo->productAttributes->productUrl,
                             'image'     => $image,
-                            'imageurl' => $product->productBaseInfo->productAttributes->imageUrls->unknown,
+                            'imageurl' => $image_url,
                             'discount' => $product->productBaseInfo->productAttributes->discountPercentage,
                             'quantity'  =>  999,
                             'status'  =>  1,
                             'manufacturer_id' => $this->model_feed_hansoftz_feed_opencart_bridge->saveManufacurer($product->productBaseInfo->productAttributes->productBrand),
                             'stock_status_id' => $product->productBaseInfo->productAttributes->inStock
                         );
+                        
+                        $this->collection[$key]['product_store'] = array(0);
+                            
+                       
                         
                         
                         // Fetch category and save
@@ -184,7 +198,7 @@ class ModelFeedHansoftzFeed extends Model {
             //recursively call next url untill finished
             if(!empty($this->product_json->nextUrl)){
                 $this->category_uri = $this->product_json->nextUrl;
-                $this->_l("fetching next category : " . count($this->category_uri));
+                $this->_l("fetching next category : " . $this->category_uri);
                 $this->setProductJson();
                 $this->loopProductJson();
             }
@@ -202,15 +216,28 @@ class ModelFeedHansoftzFeed extends Model {
         }
 
     public function _l($mesg){
-            echo date("Y-m-d h:i:s " . $mesg) . "\n";
+            
+            $file = DIR_LOGS . 'data_feed'  . '.txt';
+
+            $handle = fopen($file, 'a+');
+
+            fwrite($handle, date('Y-m-d G:i:s') . ' - ' . $mesg . "\n");
+
+            fclose($handle);
     }
     
     public function saveImage($uri,$path){
         $image_name = substr($uri, strrpos($uri,'/'), strlen($uri));
         $dir = 'import/' .$path;
-        if(!is_dir(DIR_IMAGE . $dir))
-            mkdir(DIR_IMAGE . $dir,0777,TRUE);
-        copy($uri,DIR_IMAGE . $dir . $image_name);
+        if(!file_exists(DIR_IMAGE . $dir . $image_name)){
+            if(!is_dir(DIR_IMAGE . $dir))
+                mkdir(DIR_IMAGE . $dir,0777,TRUE);
+            copy($uri,DIR_IMAGE . $dir . $image_name);
+        }
         return $dir . '/' . $image_name;
     }
+    
+    
+    
+    
 }
