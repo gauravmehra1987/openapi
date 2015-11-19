@@ -18970,3 +18970,9 @@
 2015-11-04 14:09:39 - fetching next category : https://affiliate-api.flipkart.net/affiliate/feeds/gauravmeh4/category/2oq-c1r/55ab9f5573a4773ffb94c44c.json?expiresAt=1446678544725&sig=c1a4c460642df4195b85f42ea2353129
 2015-11-04 14:09:45 - Category Path: Apparels>Women>Ethnic Wear>Kurtas & Kurtis>Kurtas
 2015-11-04 14:09:52 - Category Path: Apparels>Women>Ethnic Wear>Kurtas & Kurtis>Kurtas
+2015-11-07 8:06:42 - Starting the Feed script...
+2015-11-07 8:06:42 - category url: 
+2015-11-07 8:07:48 - Starting the Feed script...
+2015-11-07 8:07:48 - category url: 
+2015-11-07 8:08:45 - Starting the Feed script...
+2015-11-07 8:08:45 - category url: http://affiliate-feeds.snapdeal.com/feed/api/category/v1:691:626027012954?expiresAt=1446935400011&signature=ahykpposuqhsqhxhixft

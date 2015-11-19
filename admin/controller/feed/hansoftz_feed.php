@@ -134,6 +134,31 @@ class ControllerFeedHansoftzFeed extends Controller {
             
         }
         
+        public function snapdeal(){
+            //Load the feed model
+            $this->load->model('feed/snapdeal_feed');
+            
+            //Load default settings
+//            $this->_loadSettings();
+//            $this->_xx('fk_feed_status');
+            
+//            if($this->_xx('fk_feed_status')){
+                $fk = $this->model_feed_snapdeal_feed
+                    ->setApi('http://affiliate-feeds.snapdeal.com/feed/74027.json')
+                    ->setHeader(array(
+                        'Cache-Control: max-age=999999',
+                        'Snapdeal-Affiliate-Id: 74027',
+                        'Snapdeal-Token-Id: 216890a75fdaf5192403379c91ad5b'
+                    ))
+                    ->setJson()
+
+                    ->setVersion('v1')
+
+                    ->setCats(array('Womens_Ethnic_Wear'))
+                    ->run();
+//            }
+        }
+        
         public function _l($mesg){
             echo date("Y-m-d h:i:s " . $mesg);
         }

@@ -1,0 +1,226 @@
+<style type="text/css">
+    .modal{ width: 600px; height: 400px; background: #fff;}
+</style>      
+<!-- start cont  -->
+             <div id="cont">               
+                 <div class="breadcrumb">
+                    <a href="<?php echo base_url(); ?>">Home</a>
+                     » <?php echo $product->name; ?>
+                  </div>
+                  <div class="product-info">
+                            <div class="left"> 
+                                <div class="image-wrap">
+                                      <a title="" rel="<?php echo $product->name; ?>" href="#">
+                                          <img id="image" width="400" title="<?php echo $product->name; ?>" src="<?php echo $product->largethumb; ?>"/>
+                                      </a>
+                                   <ul id="thumblist">
+                                       <?php  foreach($product->images as $image): ?>
+                                             <li><a title="<?php echo $product->name; ?>" href="<?php echo $image['lthumb']; ?>" ><img alt="<?php echo $product->name; ?>" title="<?php echo $product->name; ?>" src="<?php echo $image['thumb']; ?>"/></a></li>
+                                       <?php endforeach; ?>
+                                  </ul>
+                              </div>
+                                 <div class="desc">
+                                     <h2 class="bh"><span>Description:</span></h2>
+                                    <p><?php echo $product->auto_meta; ?></p>
+                                </div>
+                                
+                                <div class="review-ratings">
+<div class="col-3">
+<div class="rt-count"><?php echo $total_reviews; ?> reviews</div>
+<ul>
+    <?php foreach($review_stat as $key=>$stat): ?>
+<li class="r-count">
+    <a title="" href="#">
+    <span class="counter-label"><?php echo $key; ?></span>
+    <span style="height:17px;width:92px;background-color:#ececec;float:left;" class="counter-back">
+            <span style="width: <?php if($stat){ echo $stat['average']; }else echo "0"; ?>%;height:17px;background-color:#fddb5a;float:
+    left;" class="counter-bar">  </span></span>
+     <span style="margin-left:5px;" class="counter-count"><?php if($stat){ echo $stat['count']; }else echo "0"; ?></span>
+    </a>
+</li>
+<?php endforeach; ?>
+</ul>
+
+</div>
+                                    <div class="col-3">
+                                            <div class="ar">Average Rating</div>
+                                                    <div class="star-holder"><div class="star-rating">3 stars</div></div>
+                                                     <span>3.6 out of 5 stars</span>
+                                            <div class="r-link">
+                                                <?php if(!$is_user): ?>
+                                                <span class="reviews-need-login">You must <a class="fba" href="">log in</a> to submit a review. You can also log in or register using the form near the top of this page.</span>	
+                                                <?php else: ?>
+                                                <a class="_wr"><strong>Write Review</strong></a>
+                                                <?php endif; ?>
+                                            </div>
+
+                                    </div>
+                                    
+                                    <!-- start gdsr rating -->
+                                    <div class="ratingblock "><div class="ratingheader ">Current ratings</div><div class="ratingstars "><div class="ratepost gdsr-oxygen gdsr-size-24" id="article_rater_779"><div class="starsbar gdsr-size-24"><div class="gdouter gdheight"><div class="gdinner gdheight" id="gdr_vote_a779"></div><div class="gdsr_rating_as" id="gdr_stars_a779"><a rel="nofollow" class="s10" title="10 / 10" id="gdsrX779X5X0XaXarticle_rater_779Xarticle_loader_779X10X24"></a><a rel="nofollow" class="s9" title="9 / 10" id="gdsrX779X4X0XaXarticle_rater_779Xarticle_loader_779X10X24"></a><a rel="nofollow" class="s8" title="8 / 10" id="gdsrX779X3X0XaXarticle_rater_779Xarticle_loader_779X10X24"></a><a rel="nofollow" class="s7" title="7 / 10" id="gdsrX779X2X0XaXarticle_rater_779Xarticle_loader_779X10X24"></a><a rel="nofollow" class="s6" title="6 / 10" id="gdsrX779X1X0XaXarticle_rater_779Xarticle_loader_779X10X24"></a>
+                                                        <a rel="nofollow" class="s5" title="5 / 10" id="gdsrX779X1X0XaXarticle_rater_779Xarticle_loader_779X10X24"></a>
+                                                        <a rel="nofollow" class="s4" title="4 / 10" id="gdsrX779X1X0XaXarticle_rater_779Xarticle_loader_779X10X24"></a>
+                                                        <a rel="nofollow" class="s3" title="3 / 10" id="gdsrX779X1X0XaXarticle_rater_779Xarticle_loader_779X10X24"></a>
+                                                        <a rel="nofollow" class="s2" title="2 / 10" id="gdsrX779X1X0XaXarticle_rater_779Xarticle_loader_779X10X24"></a>
+                                                        <a rel="nofollow" class="s1" title="1 / 10" id="gdsrX779X1X0XaXarticle_rater_779Xarticle_loader_779X10X24"></a>
+                                                        </div></div></div></div><div class="ratingloaderarticle" style="display: none; width: 120px " id="article_loader_779"><div style="height: 24px" class="loader flower "><div style="padding-top: 2px" class="loaderinner">please wait...</div></div></div></div><div class="ratingtext "><div id="gdr_text_a779">Rating: 4.5/<strong>5</strong> (4 votes cast)</div></div></div>
+                                     
+                                    <div class="thumblock "><div class="gdt-size-20 gdthumb gdup" id="gdsr_thumb_779_a_up"><a rel="nofollow" class="gdt-starrating" id="gdsrX779XupXaX25X20XY"></a></div><div class="ratingloader loadup" style="display: none; width: 20px " id="gdsr_thumb_779_a_loader_up"><div style="width: 20px; height: 20px;" class="loader flower thumb"></div></div><div class="gdt-size-20 gdthumb gddw" id="gdsr_thumb_779_a_dw"><a rel="nofollow" class="gdt-starrating" id="gdsrX779XdwXaX25X20XY"></a></div><div class="ratingloader loaddw" style="display: none; width: 20px " id="gdsr_thumb_779_a_loader_dw"><div style="width: 20px; height: 20px;" class="loader flower thumb"></div></div><div class="ratingtext "><div class="gdt-size-20 gdthumbtext" id="gdsr_thumb_text_779_a">Rating: <strong>+5</strong> (from 5 votes)</div></div><div class="raterclear"></div></div>
+                                    <!-- end gdsr rating -->
+                                    
+                                    
+                                    
+                                </div>
+                                
+       
+        <!--Rating-->
+        <div class="l-reviews">
+            <span class="success"></span>
+            <h2 class="rh">Latest Reviews <?php echo $product->name; ?></h2> 
+            <?php if($is_user): ?>
+            <a class="_wr" href="#">Write a review</a>
+            <?php endif; ?>
+            <div id="reviews">
+                
+            </div>
+            
+        </div>
+        
+	
+</div>
+                                
+                         
+                            <div class="right">
+                                     <h1><?php echo $product->name; ?></h1>
+                                     <table class="specs">
+                                          <?php  foreach($product->attributes as $groups): ?>
+                                         <tr><td class="title" colspan="2"><?php echo $groups['name']; ?></td></tr>
+                                         <?php if($groups['attribute']): foreach($groups['attribute'] as $attribute): ?>
+                                         <tr><td><?php echo $attribute['name']; ?></td><td><?php echo $attribute['text']; ?></td></tr>
+                                         <?php endforeach; endif; ?>
+                                         <?php endforeach; ?>
+                                     </table>
+                        </div>
+                    </div>
+                 
+                 <div class="wrbox modal"><span class="b-close">X</span>
+ <form method="post" id="post-review">
+     <span class="loading">Please wait...</span>
+     <table id="user-review-form">
+        <tbody><tr>
+            <td class="">
+                <label>Review Title:</label>
+            </td>
+            <td class="user-input">
+                <input type="text" value="" class="txt" name="title" id="title" size="40">
+                <div class="info">(Maximum 20 words)</div>
+            </td>
+        </tr>
+        <tr>
+            <td class="lbl boldtext valign-top">
+
+                <label for="review_text" class="lastUnit fk-label">
+                    <div class="fk-review-steps fk-review-step2 unit"></div>
+                    Your Review:
+                </label>
+
+            </td>
+            <td class="user-input">
+                <div >
+                    <div class="">
+                        <div class="">
+                            <strong>Please do not include:</strong> HTML, references to other retailers, pricing, personal information, any profane, inflammatory or copyrighted comments, or any copied content.
+                        </div>
+                    </div>
+                    <textarea name="review_text" id="text" cols="" rows=""></textarea>
+                    
+                    <div id="review_text_help_message" class="help_message lpadding5">
+                        (Please make sure your review contains at least 100 characters.)
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="lbl boldtext">
+                <label class="lastUnit">
+                    <div class="fk-review-steps fk-review-step3 unit fk-label"></div>
+                    Your Rating:
+                </label>
+            </td>
+            <td class="user-input">
+                <input type="radio" value="1" name="rate" />1
+                <input type="radio" value="2" name="rate" />2
+                <input type="radio" value="3" name="rate" />3
+                <input type="radio" value="4" name="rate" />4
+                <input type="radio" value="5" name="rate" />5
+                </div></div>
+                
+            </td>
+        </tr>
+                
+                        
+                <tr>
+            <td>&nbsp;</td>
+            <td>
+
+                <input type="hidden" id="vertical" name="vertical" value="mobile">
+                <input type="submit" value="Submit" onclick="" id="s" class="btn btn-blue">
+            </td>
+        </tr>
+    </tbody></table>
+ </form>
+                 </div>
+<!--                 end product info-->
+
+      <link href="http://localhost/priceoye/static/css/rating.css" rel="stylesheet" />
+      <link href="http://localhost/priceoye/static/css/gdsr.css" rel="stylesheet" />
+      
+         </div>
+      <script type="text/javascript">
+          var ajax='<?php echo site_url('ajax/pro'); ?>';
+          $('._wr').click(function(e){ e.preventDefault();
+              $('.wrbox').bPopup({
+                  //onClose: function() {content.empty();}
+              });
+          });
+          $(document).ready(function(){
+              $('#post-review').submit(function(e){
+                  e.preventDefault();
+                    $.ajax({
+                        url: ajax,
+                        type: 'post',
+                        data:{id:<?php echo $product->product_id; ?>,rate:$('input[name=rate]:checked').val(),action:'write_review','title':$('#title').val(),'text':$('#text').val()},
+                        dataType: 'json',
+                        beforeSend: function() {
+                                $('.loading').show();
+                        },	
+                        complete: function() {
+                                 
+                        },			
+                        success: function(json) {
+                          
+                            $('.loading').hide();
+                            $('.b-close').trigger('click',true);
+                            $('.success').html('Your review has been submitted and wating for approval');
+                        }
+                    });
+                  return false;
+              });
+              
+          });
+          var _pagi='1:5';
+          $.post(ajax,{pagi:_pagi,action:'fetch_reviews',id:<?php echo $product->product_id; ?>},function(r){ r = $.parseJSON(r);
+//            if(r.status){
+                $('#reviews').html(r.html);
+//            }
+          });
+          var org=$('#image').attr('src');
+          
+$('#thumblist li a').click(function(e){ e.preventDefault();
+             $('#image').attr('src',$(this).attr('href'));
+          });
+          
+      </script>
+           <!-- end cont  --> 
+<script type="text/javascript" src="/static/js/jquery.bpopup.min.js"></script>
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>

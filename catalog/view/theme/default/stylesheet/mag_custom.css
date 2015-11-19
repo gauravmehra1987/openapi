@@ -1,0 +1,39 @@
+.subscribe-renew-button {
+	width: 49%;
+}
+
+#button-mag-cart {
+	width: 100%;
+	
+	font-weight: 400;
+	font-style: normal;
+	font-size: 16px;
+	text-transform: uppercase;
+	line-height: 40px;
+}
+
+.modal-dialog {
+	z-index: 9999;
+}
+
+#content .cart {
+	display:none;
+}
+
+h2.secondary-title {
+	color:#5C8BA6;
+}
+
+.wishlist-compare {
+	display:none;
+}
+
+
+.login-content > div {
+  width: auto !important;
+}
+
+span.option-strong {
+  color: rgb(76, 179, 86);
+  font-weight: bold;
+}

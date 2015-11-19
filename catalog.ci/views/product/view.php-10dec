@@ -1,0 +1,39 @@
+      <!-- start cont  -->
+             <div id="cont">               
+                 <div class="breadcrumb">
+                    <a href="<?php echo base_url(); ?>">Home</a>
+                     » <?php echo $product->name; ?>
+                  </div>
+                  <div class="product-info">
+                            <div class="left"> 
+                                <div class="image-wrap">
+                                      <a title="" rel="HP LP3065" href="#">
+                                          <img width="400" title="HP LP3065" src="<?php echo $product->largethumb; ?>"/>
+                                      </a>
+                                   <ul id="thumblist">
+                                       <?php  foreach($product->images as $image): ?>
+                                             <li><a title="<?php echo $product->name; ?>" href="#" class="zoomThumbActive" key="0"><img alt="HP LP3065" title="HP LP3065" src="<?php echo $image['thumb']; ?>"/></a></li>
+                                       <?php endforeach; ?>
+                                  </ul>
+                              </div>
+                                 <div class="desc">
+                                     <h2 class="bh"><span>Description:</span></h2>
+                                    <p><?php echo $product->description; ?></p>
+                                </div>
+                                
+                            </div>
+                            <div class="right">
+                                     <h1><?php echo $product->name; ?></h1>
+                                     <table class="specs">
+                                          <?php  foreach($product->attributes as $groups): ?>
+                                         <tr><td class="title" colspan="2"><?php echo $groups['name']; ?></td></tr>
+                                         <?php if($groups['attribute']): foreach($groups['attribute'] as $attribute): ?>
+                                         <tr><td><?php echo $attribute['name']; ?></td><td><?php echo $attribute['text']; ?></td></tr>
+                                         <?php endforeach; endif; ?>
+                                         <?php endforeach; ?>
+                                     </table>
+                        </div>
+                    </div>
+<!--                 end product info-->
+             </div>
+           <!-- end cont  --> 

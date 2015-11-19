@@ -1,0 +1,30 @@
+.logon_hover{position:relative}
+.hovered_log{border:1px solid #E6E6E6;border-radius:5px;background:#F8F8F8;min-height:105px;height:auto;position:absolute;right:0;display:block;top:40px;width:428px;z-index:999999;padding:15px;box-shadow:0px 0px 3px #a4a4a4}
+.hovered_log{-moz-border-radius:0 !important;-webkit-border-radius:0 !important;border-radius:0 !important;-moz-box-shadow:none !important;-webkit-box-shadow:none !important;box-shadow:none !important;background:#f8f8f8 !important;border:0;border-top:4px solid #01b3e1 !important}
+.hovered_log .block{width:150px;height:auto;float:left;padding:5px;text-align:left;font-size:14px}
+.hovered_log .block input{width:100%;border:1px solid #E6E6E6}
+.hovered_log .block input[type="submit"]{height:32px;font-size:11px;border:none;border-radius:0px;width:100%}
+.btn_logon{padding:7px 10px;color:#fff;border:0px;border-radius:7px;width:100%;font-weight:bold;margin-top:20px;background:#a0d567;background:-moz-linear-gradient(top,  #a0d567 0%, #a0d567 42%, #7b9e3f 100%, #7cbc0a 100%);background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,#a0d567), color-stop(42%,#a0d567), color-stop(100%,#7b9e3f), color-stop(100%,#7cbc0a));background:-webkit-linear-gradient(top,  #a0d567 0%,#a0d567 42%,#7b9e3f 100%,#7cbc0a 100%);background:-o-linear-gradient(top,  #a0d567 0%,#a0d567 42%,#7b9e3f 100%,#7cbc0a 100%);background:-ms-linear-gradient(top,  #a0d567 0%,#a0d567 42%,#7b9e3f 100%,#7cbc0a 100%);background:linear-gradient(to bottom,  #a0d567 0%,#a0d567 42%,#7b9e3f 100%,#7cbc0a 100%);filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#a0d567', endColorstr='#7cbc0a',GradientType=0 )}
+.help_p{margin-left:5px;margin-bottom:0px;font-size:12px !important;margin-top:7px;text-align:left;float:left}
+.help_p span{font-size:12px}
+.help_p a{border-left:0 none !important;font-size:12px !important;display:inline !important;float:none !important;text-decoration:underline !important}.help_p a:after{content:' '}
+.block_small{width:80px !important}.block_margin{margin-left:15px}
+.hovered_log .cross{background:none repeat scroll 0 0 #000;color:#fff;cursor:pointer;font-size:10px;font-weight:bold;padding:1px 6px;position:absolute;right:6px;top:5px}
+.hovered_log .btn_logon:hover, .hovered_log .cross:hover{background:#444 !important}
+.hovered_log .btn_logon{background:#01b3e1 !important;margin-left:10px}
+.hovered_log .cross{background:#01b3e1 !important}
+
+.hovered_log .text-danger {
+	width: 100%;
+	margin-top: 5px;
+}
+
+@media screen and (max-width: 760px) {
+ .hovered_log {top:80px!important;}
+}
+
+@media screen and (max-width: 648px) {
+ .hovered_log {width:100%!important;}
+ .block_margin, .hovered_log .btn_logon{margin-left:0px!important;}
+ .hovered_log .block{width:100%!important;}
+}

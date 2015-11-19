@@ -3,6 +3,7 @@
 /image
 /config.php
 /admin/config.php
+/system/storage
 *.mo
 
 # IDE and editor specific files #

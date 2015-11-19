@@ -141,7 +141,7 @@ $controller = new Front($registry);
 
 
 // Router
-$action = new Action('feed/hansoftz_feed/execute');
+$action = new Action('feed/hansoftz_feed/snapdeal');
 
 // Dispatch
 $controller->dispatch($action, new Action('error/not_found'));
