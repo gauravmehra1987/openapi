@@ -108,10 +108,10 @@ class ModelFeedSnapdealFeed extends Model {
             $language_id = $this->config->get('config_language_id');
             
             if($this->product_json){
-                foreach($this->product_json->products as $key=>$product){  if($key>10) break;
+                foreach($this->product_json->products as $key=>$product){
                     // We are only interested in InStock Product
                 
-                    if($product->availability=='in stock'){
+                    if($product->availability=='in stock' && $product->subCategoryName == 'Dress Material'){
                         
                         $this->collection[$key]['product_description'][$language_id] = array(
                             'name' => $product->title,

@@ -266,7 +266,7 @@ class ModelFeedHansoftzFeedOpencartBridge extends Model{
     public function addProduct($data) {
 //        print_r($data); exit;
         $product = $data['product'];
-        if(empty($product['model']) && !isset($data['product_description'][$this->config->get('config_language_id')]))
+        if(empty($product['model']) && !isset($data['product_description'][1]))
             return false;
         
         if (isset($data['product'])) {
@@ -323,7 +323,10 @@ class ModelFeedHansoftzFeedOpencartBridge extends Model{
                 $this->db->query("INSERT INTO `" . DB_PREFIX . "product_profile` SET `product_id` = " . (int) $product_id . ", customer_group_id = " . (int) $profile['customer_group_id'] . ", `profile_id` = " . (int) $profile['profile_id']);
             }
         }
-
+        if(isset($data['discount'])){
+            $this->db->query("INSERT INTO " . DB_PREFIX . "product_special SET product_id = '" . (int)$product_id . "', customer_group_id = '1', priority = '1', price = '" . (float)$data['discount'] . "'");
+        }
+        
         $this->cache->delete('product');
 
         return $product_id;
@@ -358,7 +361,7 @@ class ModelFeedHansoftzFeedOpencartBridge extends Model{
                 $this->db->query($sql);
             }
             $this->db->query("DELETE FROM " . DB_PREFIX . "url_alias WHERE query = 'product_id=" . (int)$product_id . "'");
-            $this->db->query("INSERT INTO " . DB_PREFIX . "url_alias SET query = 'product_id=" . (int)$product_id . "', keyword = '" . $this->slugify($this->db->escape(htmlentities($data['product_description'][$this->config->get('config_language_id')]['name'], ENT_QUOTES, "UTF-8"))) . "'");
+            $this->db->query("INSERT INTO " . DB_PREFIX . "url_alias SET query = 'product_id=" . (int)$product_id . "', keyword = '" . $this->slugify($this->db->escape(htmlentities($data['product_description'][1]['name'], ENT_QUOTES, "UTF-8"))) . "'");
         }
 
         if (isset($data['product_image'])) {
