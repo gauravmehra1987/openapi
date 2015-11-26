@@ -223,12 +223,7 @@ class ModelFeedSnapdealFeed extends Model {
         if(!file_exists(DIR_IMAGE . $dir . $image_name)){
             if(!is_dir(DIR_IMAGE . $dir))
                 mkdir(DIR_IMAGE . $dir,0777,TRUE);
-<<<<<<< HEAD
-            try{
-                $copied = @copy($uri,DIR_IMAGE . $dir . $image_name);
-            }catch(Exception $e){
-                echo 'Image exception: ',  $e->getMessage(), "\n";
-=======
+
             
             if($this->checkRemoteFile($uri)){
                 copy($uri,DIR_IMAGE . $dir . $image_name);
@@ -239,7 +234,7 @@ class ModelFeedSnapdealFeed extends Model {
                 }else{
                     return "";
                 }
->>>>>>> 6a8634380017caaa74c349297648913adaa0a4e3
+
             }
         }
         return $dir . '/' . $image_name;
