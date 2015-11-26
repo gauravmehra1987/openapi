@@ -217,18 +217,49 @@ class ModelFeedSnapdealFeed extends Model {
     }
     
     public function saveImage($uri,$path){
+        
         $image_name = substr($uri, strrpos($uri,'/'), strlen($uri));
         $dir = 'snapdeal/' .$path;
         if(!file_exists(DIR_IMAGE . $dir . $image_name)){
             if(!is_dir(DIR_IMAGE . $dir))
                 mkdir(DIR_IMAGE . $dir,0777,TRUE);
+<<<<<<< HEAD
             try{
                 $copied = @copy($uri,DIR_IMAGE . $dir . $image_name);
             }catch(Exception $e){
                 echo 'Image exception: ',  $e->getMessage(), "\n";
+=======
+            
+            if($this->checkRemoteFile($uri)){
+                copy($uri,DIR_IMAGE . $dir . $image_name);
+            }else{
+                $uri = str_replace("i1.sdlcdn.com","n1.sdlcdn.com",$uri);
+                if($this->checkRemoteFile($uri)){
+                    copy($uri,DIR_IMAGE . $dir . $image_name);
+                }else{
+                    return "";
+                }
+>>>>>>> 6a8634380017caaa74c349297648913adaa0a4e3
             }
         }
         return $dir . '/' . $image_name;
+    }
+    
+    public function checkRemoteFile($url){
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL,$url);
+        // don't download content
+        curl_setopt($ch, CURLOPT_NOBODY, 1);
+        curl_setopt($ch, CURLOPT_FAILONERROR, 1);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        if(curl_exec($ch)!==FALSE)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
     
     

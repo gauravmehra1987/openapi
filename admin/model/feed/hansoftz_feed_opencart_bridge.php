@@ -324,7 +324,7 @@ class ModelFeedHansoftzFeedOpencartBridge extends Model{
             }
         }
         if(isset($data['product']['discount'])){
-            $this->db->query("INSERT INTO " . DB_PREFIX . "product_special SET product_id = '" . (int)$product_id . "', customer_group_id = '1', priority = '1', price = '" . (float)$data['discount'] . "'");
+            $this->db->query("INSERT INTO " . DB_PREFIX . "product_special SET product_id = '" . (int)$product_id . "', customer_group_id = '1', priority = '1', price = '" . (float)$data['product']['discount'] . "'");
         }
         
         $this->cache->delete('product');
@@ -417,6 +417,11 @@ class ModelFeedHansoftzFeedOpencartBridge extends Model{
             foreach($data['product_option'] as $option){
                 $this->saveOption($option['name'],$option['value'],$product_id);
             }
+        }
+        
+        $this->db->query("delete from " . DB_PREFIX . "product_special where product_id = '" . (int)$product_id . "'");
+        if(isset($data['product']['discount'])){
+            $this->db->query("INSERT INTO " . DB_PREFIX . "product_special SET product_id = '" . (int)$product_id . "', customer_group_id = '1', priority = '1', price = '" . (float)$data['product']['discount'] . "'");
         }
     }
     
