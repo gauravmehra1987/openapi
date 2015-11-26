@@ -223,7 +223,7 @@ class ModelFeedSnapdealFeed extends Model {
             if(!is_dir(DIR_IMAGE . $dir))
                 mkdir(DIR_IMAGE . $dir,0777,TRUE);
             try{
-                copy($uri,DIR_IMAGE . $dir . $image_name);
+                $copied = @copy($uri,DIR_IMAGE . $dir . $image_name);
             }catch(Exception $e){
                 echo 'Image exception: ',  $e->getMessage(), "\n";
             }

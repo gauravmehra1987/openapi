@@ -323,7 +323,7 @@ class ModelFeedHansoftzFeedOpencartBridge extends Model{
                 $this->db->query("INSERT INTO `" . DB_PREFIX . "product_profile` SET `product_id` = " . (int) $product_id . ", customer_group_id = " . (int) $profile['customer_group_id'] . ", `profile_id` = " . (int) $profile['profile_id']);
             }
         }
-        if(isset($data['discount'])){
+        if(isset($data['product']['discount'])){
             $this->db->query("INSERT INTO " . DB_PREFIX . "product_special SET product_id = '" . (int)$product_id . "', customer_group_id = '1', priority = '1', price = '" . (float)$data['discount'] . "'");
         }
         
