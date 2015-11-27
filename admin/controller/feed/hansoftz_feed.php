@@ -68,8 +68,6 @@ class ControllerFeedHansoftzFeed extends Controller {
                 $this->load->model('setting/setting');
                 $data['_xx'] = $this->model_setting_setting->getSetting('hansoftz_feed');
                 
-		
-
 		$data['header'] = $this->load->controller('common/header');
 		$data['column_left'] = $this->load->controller('common/column_left');
 		$data['footer'] = $this->load->controller('common/footer');
@@ -81,13 +79,11 @@ class ControllerFeedHansoftzFeed extends Controller {
 		if (!$this->user->hasPermission('modify', 'feed/hansoftz_feed')) {
 			$this->error['warning'] = $this->language->get('error_permission');
 		}
-
 		return !$this->error;
 	}
 
 	public function install() {
 		$this->load->model('feed/hansoftz_feed');
-
 		$this->model_feed_hansoftz_feed->install();
 	}
 

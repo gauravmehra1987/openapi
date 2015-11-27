@@ -98,8 +98,8 @@ class ModelFeedHansoftzFeed extends Model {
             foreach($this->cats as $category){
                 $this->category_uri = $this->json->apiGroups->affiliate->apiListings->{$category}->availableVariants->{$this->version}->get;
                 $this->_l("category url: " . $this->category_uri);
-//                $this->setProductJson();
-                $this->kickstart("https://affiliate-api.flipkart.net/affiliate/feeds/gauravmeh4/category/2oq-c1r/55ab94fc73a4773ffb93a8fd.json?expiresAt=1446669916041&sig=76d61feb80e04cd16b83fde405076a37");
+                $this->setProductJson();
+//                $this->kickstart("https://affiliate-api.flipkart.net/affiliate/feeds/gauravmeh4/category/2oq-c1r/55ab94fc73a4773ffb93a8fd.json?expiresAt=1446669916041&sig=76d61feb80e04cd16b83fde405076a37");
                 $this->loopProductJson();
             }
         }
@@ -111,7 +111,7 @@ class ModelFeedHansoftzFeed extends Model {
             if($this->product_json){
                 foreach($this->product_json->productInfoList as $key=>$product){  //if($key>10) break;
                     // We are only interested in InStock Product
-                    if($product->productBaseInfo->productAttributes->inStock){
+                    if($product->productBaseInfo->productAttributes->inStock && strpos($product->productBaseInfo->productIdentifier->categoryPaths->categoryPath[0][0]->title,'aterial')){
                         
                         $this->collection[$key]['product_description'][$language_id] = array(
                             'name' => $product->productBaseInfo->productAttributes->title,
@@ -130,6 +130,7 @@ class ModelFeedHansoftzFeed extends Model {
                         }else $image = ""; $image_url='';
                         $this->collection[$key]['product'] = array(
                             'model' => $product->productBaseInfo->productIdentifier->productId,
+                            'sku' => 'flipkart-' . $product->id,
                             'price' => $product->productBaseInfo->productAttributes->sellingPrice->amount,
                             'mrp' => $product->productBaseInfo->productAttributes->maximumRetailPrice->amount,
                             'cod' => $product->productBaseInfo->productAttributes->codAvailable,
@@ -228,7 +229,7 @@ class ModelFeedHansoftzFeed extends Model {
     
     public function saveImage($uri,$path){
         $image_name = substr($uri, strrpos($uri,'/'), strlen($uri));
-        $dir = 'import/' .$path;
+        $dir = 'flipkart/' .$path;
         if(!file_exists(DIR_IMAGE . $dir . $image_name)){
             if(!is_dir(DIR_IMAGE . $dir))
                 mkdir(DIR_IMAGE . $dir,0777,TRUE);
