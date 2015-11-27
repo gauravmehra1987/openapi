@@ -98,8 +98,8 @@ class ModelFeedHansoftzFeed extends Model {
             foreach($this->cats as $category){
                 $this->category_uri = $this->json->apiGroups->affiliate->apiListings->{$category}->availableVariants->{$this->version}->get;
                 $this->_l("category url: " . $this->category_uri);
-                $this->setProductJson();
-//                $this->kickstart("https://affiliate-api.flipkart.net/affiliate/feeds/gauravmeh4/category/2oq-c1r/55ab94fc73a4773ffb93a8fd.json?expiresAt=1446669916041&sig=76d61feb80e04cd16b83fde405076a37");
+//                $this->setProductJson();
+                $this->kickstart("https://affiliate-api.flipkart.net/affiliate/feeds/gauravmeh4/category/2oq-c1r/55abbcd973a4773ffb984963.json?expiresAt=1448658820669&sig=66b7b8402695d3e43ae129ce35fcbee8");
                 $this->loopProductJson();
             }
         }
@@ -148,10 +148,7 @@ class ModelFeedHansoftzFeed extends Model {
                         );
                         
                         $this->collection[$key]['product_store'] = array(0);
-                            
-                       
-                        
-                        
+                          
                         // Fetch category and save
                         if (isset($this->categories[$category_chain])) {
                             $category_id = $this->categories[$category_chain];
