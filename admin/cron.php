@@ -1,4 +1,9 @@
 <?php
+$f = fopen('lock', 'w') or die ('Cannot create lock file');
+if (!flock($f, LOCK_EX | LOCK_NB)) {
+    die("Cron is already running");
+}
+
 // Version
 define('VERSION', '2.1.0.1');
 define("API_BASE","https://affiliate-api.flipkart.net/affiliate/api/gauravmeh4.json");

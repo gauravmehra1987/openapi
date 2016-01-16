@@ -10,7 +10,7 @@ class ModelFeedSnapdealFeed extends Model {
         private $category_uri;
         private $collection;
         private $categories;
-        
+        private $file = DIR_LOGS . 'next.json'  . '.txt';
         
         public function install() {
 		
@@ -77,7 +77,16 @@ class ModelFeedSnapdealFeed extends Model {
         
         public function setProductJson(){
             try{
-            $this->product_json = $this->sendRequest($this->category_uri);
+                $this->product_json = $this->sendRequest($this->category_uri);
+                
+                if(file_exists($this->file)) unlink($this->file);
+                
+                $handle = fopen($this->file, 'w+');
+                
+                fwrite($handle,  $this->product_json->nextUrl);
+
+                fclose($handle);
+            
             }catch(Exception $e){
                 echo 'Internal exception: ',  $e->getMessage(), "\n";
             }
@@ -85,7 +94,7 @@ class ModelFeedSnapdealFeed extends Model {
 
         public function kickstart($url){
             try{
-            $this->product_json = $this->sendRequest($url);
+                $this->product_json = $this->sendRequest($url);
             }catch(Exception $e){
                 echo 'Internal exception: ',  $e->getMessage(), "\n";
             }
@@ -95,10 +104,25 @@ class ModelFeedSnapdealFeed extends Model {
             $this->load->model('feed/hansoftz_feed_opencart_bridge');
             $this->_l("Starting the Feed script...");
             $this->categories = $this->model_feed_hansoftz_feed_opencart_bridge->getCategoryPaths();
-            foreach($this->cats as $category){
-                $this->category_uri = $this->json->apiGroups->Affiliate->listingsAvailable->{$category}->listingVersions->{$this->version}->get;
-                $this->_l("category url: " . $this->category_uri);
-                $this->setProductJson();
+            $last_run = 0;
+            if(file_exists($this->file)){
+                $last_modified = date ("Y-m-d H:i:s", filemtime($this->file));
+                $today = date("Y-m-d H:i:s");
+                $to_time = strtotime($today);
+                $from_time = strtotime($last_modified);
+                $last_run = round(abs($to_time - $from_time) / 60,2);
+            }
+            if($last_run > 10){
+                echo "New Run...\n";
+                foreach($this->cats as $category){
+                    $this->category_uri = $this->json->apiGroups->Affiliate->listingsAvailable->{$category}->listingVersions->{$this->version}->get;
+                    $this->_l("category url: " . $this->category_uri);
+                    $this->setProductJson();
+                    $this->loopProductJson();
+                }
+            }else{
+                echo "Resume Run...\n";
+                $this->kickstart(file_get_contents($this->file));
                 $this->loopProductJson();
             }
         }
@@ -125,7 +149,7 @@ class ModelFeedSnapdealFeed extends Model {
                         $image_path = strtolower(str_replace(' ','-',str_replace('>','/',$category_chain)));
                         if(isset($product->imageLink)){
                             $image_url = $product->imageLink;
-                            $image = $this->saveImage($product->imageLink,$image_path);
+                            $image = $product->imageLink; //$this->saveImage($product->imageLink,$image_path);
                         }else {$image = ""; $image_url='';}
                         $this->collection[$key]['product'] = array(
                             'model' => $product->id,
@@ -138,6 +162,7 @@ class ModelFeedSnapdealFeed extends Model {
                             'discount' => $product->offerPrice,
                             'quantity'  =>  999,
                             'status'  =>  1,
+                            'date_modified' => date("Y-m-d h:i:s"),
                             'manufacturer_id' => $this->model_feed_hansoftz_feed_opencart_bridge->saveManufacurer($product->brand),
                             'stock_status_id' => ($product->availability=='in stock')?1:0
                         );
@@ -184,12 +209,12 @@ class ModelFeedSnapdealFeed extends Model {
             }
             
             //recursively call next url untill finished
-            if(!empty($this->product_json->nextUrl)){
+            /*if(!empty($this->product_json->nextUrl)){
                 $this->category_uri = $this->product_json->nextUrl;
                 $this->_l("fetching next category : " . $this->category_uri);
                 $this->setProductJson();
                 $this->loopProductJson();
-            }
+            }*/
         }
         
         public function saveCollection(){

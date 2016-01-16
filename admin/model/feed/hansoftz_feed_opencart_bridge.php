@@ -274,7 +274,7 @@ class ModelFeedHansoftzFeedOpencartBridge extends Model{
             foreach ($data['product'] as $field => $value) { //if(!isset($this->pf[$field])) continue;
                 $sql .= ' ' . $field . '="' . $this->db->escape($value) . '",';
             }
-            $sql = trim($sql, ',');
+            $sql .= " date_added = NOW();";
              
             $this->db->query($sql);
         }
