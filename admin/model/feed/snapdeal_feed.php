@@ -165,7 +165,8 @@ class ModelFeedSnapdealFeed extends Model {
                     }else{
 //                      OutofStock product has to be removed if exists in system
                         $product_id = $this->model_feed_hansoftz_feed_opencart_bridge->product_exists($product->id);
-                        $this->model_feed_hansoftz_feed_opencart_bridge->deleteProduct($product_id);
+                        if($product_id)
+                        	$this->model_feed_hansoftz_feed_opencart_bridge->deleteProduct($product_id);
                     }
                 }
                 
