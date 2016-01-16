@@ -10,7 +10,7 @@ class ModelFeedSnapdealFeed extends Model {
         private $category_uri;
         private $collection;
         private $categories;
-        private $file = DIR_LOGS . 'next.json'  . '.txt';
+        private $file;
         
         public function install() {
 		
@@ -101,6 +101,7 @@ class ModelFeedSnapdealFeed extends Model {
         }
         
         public function run(){
+            $this->file = $file = DIR_LOGS . 'next.json'  . '.txt';
             $this->load->model('feed/hansoftz_feed_opencart_bridge');
             $this->_l("Starting the Feed script...");
             $this->categories = $this->model_feed_hansoftz_feed_opencart_bridge->getCategoryPaths();
