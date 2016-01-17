@@ -95,6 +95,15 @@ class ModelFeedSnapdealFeed extends Model {
         public function kickstart($url){
             try{
                 $this->product_json = $this->sendRequest($url);
+                
+                if(file_exists($this->file)) unlink($this->file);
+                
+                $handle = fopen($this->file, 'w+');
+                
+                fwrite($handle,  $this->product_json->nextUrl);
+
+                fclose($handle);
+                
             }catch(Exception $e){
                 echo 'Internal exception: ',  $e->getMessage(), "\n";
             }
