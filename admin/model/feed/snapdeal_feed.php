@@ -113,6 +113,7 @@ class ModelFeedSnapdealFeed extends Model {
                 $from_time = strtotime($last_modified);
                 $last_run = round(abs($to_time - $from_time) / 60,2);
             }
+            
             if($last_run > 10){
                 echo "New Run...\n";
                 foreach($this->cats as $category){
